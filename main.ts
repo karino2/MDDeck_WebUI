@@ -1,7 +1,7 @@
 ﻿import { WebUI } from "https://deno.land/x/webui@2.4.3/mod.ts"
 
 import {micromark} from 'https://esm.sh/micromark@3.2.0'
-import {gfm, gfmHtml} from 'https://esm.sh/micromark-extension-gfm@3.0.0'
+import {gfm, gfmHtml} from 'https://esm.sh/micromark-extension-gfm@2.0.3'
 
 import dialog from "npm:node-file-dialog@1.0.3"
 import macos from "npm:macos-open-file-dialog@1.0.1"
