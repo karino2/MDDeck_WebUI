@@ -4,7 +4,7 @@ import {micromark} from 'https://esm.sh/micromark@3.2.0'
 import {gfm, gfmHtml} from 'https://esm.sh/micromark-extension-gfm@3.0.0'
 
 import dialog from "npm:node-file-dialog@1.0.3"
-import { openFolder } from "npm:macos-open-file-dialog@1.0.1"
+import macos from "npm:macos-open-file-dialog@1.0.1"
 
 import * as path from "https://deno.land/std@0.210.0/path/mod.ts";
 import { escapeHtml } from "https://deno.land/x/escape_html@1.0.0/mod.ts"
@@ -146,7 +146,7 @@ const saveRootDir = async(dir:string) => {
 
 const openDir = async() => {
     if (Deno.build.os == "darwin") {
-        return await openFolder("Select root dir")
+        return await macos.openFolder("Select root dir")
     } else {
         const config = {type:'directory'}
         return await dialog(config)            
