@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html lang="ja-JP">
+    <head>
+        <meta charset="UTF-8">
+        <title>Main html</title>
+        <script src="webui.js"></script>
+        <script src="client/client.js"></script>
+        <link rel="stylesheet" href="client/prism.css">
+        <link rel="stylesheet" href="client/bulma.css">
+        <style>
+            #edit-area {
+                width: 100%
+            }
+        </style>    
+        <script src="client/prism.js" data-manual></script>
+    </head>
+    <body style="background: #25e6b9">
+        <h1>Md Deck</h1>
+        <button class="button" id="choose-dir">Choose Dir</button>
+        <section class="section">
+            <div id="post-div">
+                <textarea id="post-area" class="textarea"></textarea>
+                <div class="level-right">
+                    <button class="button" id="submit-post">New</button>
+                </div>
+            </div>
+        </section>
+        <section>
+            <div id="content-root" class="content"></div>
+        </section>
+    </body>
+</html>
