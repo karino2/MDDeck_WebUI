@@ -148,8 +148,12 @@ const openDir = async() => {
     if (Deno.build.os == "darwin") {
         return await macos.openFolder("Select root dir")
     } else {
-        const config = {type:'directory'}
-        return await dialog(config)            
+        try {
+            const config = {type:'directory'}
+            return (await dialog(config))[0]                
+        }catch {
+            return null
+        }
     }
 }
 
