@@ -4,6 +4,8 @@ import {micromark} from 'https://esm.sh/micromark@3.2.0'
 import {gfm, gfmHtml} from 'https://esm.sh/micromark-extension-gfm@3.0.0'
 
 import dialog from "npm:node-file-dialog@1.0.3"
+import { openFolder } from "npm:macos-open-file-dialog@1.0.1"
+
 import * as path from "https://deno.land/std@0.210.0/path/mod.ts";
 import { escapeHtml } from "https://deno.land/x/escape_html@1.0.0/mod.ts"
 
@@ -100,7 +102,6 @@ interface Cell {
 const loadDir = async (dirPath:string) => {
     const paths = await readFilePaths(dirPath, g_ITEM_LIMIT)
     const limited = paths.length <= g_ITEM_LIMIT ? paths : paths.slice(0, g_ITEM_LIMIT)
-    // limited.reverse()
     const cells : Cell[] = await Promise.all(
         limited
         .map( async pathpair => {
@@ -144,8 +145,12 @@ const saveRootDir = async(dir:string) => {
 
 
 const openDir = async() => {
-    const config = {type:'directory'}
-    return await dialog(config)
+    if (Deno.build.os == "darwin") {
+        return await openFolder("Select root dir")
+    } else {
+        const config = {type:'directory'}
+        return await dialog(config)            
+    }
 }
 
 
@@ -161,12 +166,12 @@ const selectDir = async() => {
     if (dir == null)
         return false
 
-    saveRootDir(dir)
+    await saveRootDir(dir)
     return true
 }
 
 myWindow.bind("chooseDir", async() => {
-    if(!selectDir())
+    if(!await selectDir())
         return ""
 
     await loadDir(g_dir)
@@ -175,7 +180,7 @@ myWindow.bind("chooseDir", async() => {
 myWindow.bind("onLoad", async () => {
     if (g_dir == "")
     {
-        if(!selectDir())
+        if(!await selectDir())
             return ""
     }
     await loadDir(g_dir)
