@@ -11,20 +11,15 @@ window.addEventListener('load', (_)=> {
     /** @type {HTMLDivElement} */
     const postDiv = document.getElementById("post-div")
     /** @type {HTMLTextAreaElement} */
-    const postArea = postDiv.querySelector("#post-area")
+    const postArea = postDiv.querySelector("#post-area")  
+    /** @type {HTMLDivElement} */
+    const editDiv = document.getElementById("edit-div")
+    /** @type {HTMLTextAreaElement} */
+    const editArea = editDiv.querySelector("#edit-area")
+
 
     const postEdit = () => {
-        webui.call('post', postArea.value).then((newCell)=> {
-            /*
-
-            const newDiv = document.createElement("div")
-            newDiv.className = "box"
-            newDiv.innerHTML = newCell
-            Prism.highlightAllUnder(newDiv)
-            contentRootDiv.insertBefore(newDiv, contentRootDiv.firstChild)
-            */
-
-        })
+        webui.call('post', postArea.value)
     }
 
     g_handler.onLoadOneMd = (jsonArg) => {
@@ -55,6 +50,85 @@ window.addEventListener('load', (_)=> {
             postEdit()        
         }
     })
+
+    /** @type {HTMLDivElement} */
+    let lastSelected = null
+    let targetFullPath = ""
+
+    const onBodyClick = (event) => {
+        const findTargetElem = (start) => {
+            if (start.tagName == "body")
+                return null
+            if (start == contentRootDiv)
+                return null
+            let cur = start
+            while (cur != contentRootDiv) {
+                const fpath = cur.getAttribute('fpath')
+                if (fpath != null)
+                    return cur
+                cur = cur.parentElement
+            
+                // not contentRootDiv child
+                if (cur == null)
+                    return null
+            }
+            return null
+        }
+
+        let topelem = findTargetElem(event.target) 
+        if (!topelem)
+            return
+        const fpath = topelem.getAttribute('fpath')
+        lastSelected = topelem
+        targetFullPath = fpath
+        webui.call("box-click", fpath)
+    }
+
+
+    const body = document.body
+    body.addEventListener('click', onBodyClick) 
+    
+    document.getElementById('cancel-edit').addEventListener('click', ()=>{
+        editDiv.style.display = 'none'
+    })
+
+    const submitEdit = ()=> {
+        webui.call('submit', targetFullPath, editArea.value)
+        editDiv.style.display = 'none'
+    }
+    
+    document.getElementById('submit-edit').addEventListener('click', ()=>{
+        submitEdit()
+    })
+
+    g_handler.afterSubmit = (jsonArg) => {
+        const obj = JSON.parse(jsonArg)
+
+        lastSelected.innerHTML = obj.innerHTML
+        Prism.highlightAllUnder(lastSelected)
+    }
+
+    
+    editArea.addEventListener('keydown', (event)=>{
+        if((event.keyCode == 10 || event.keyCode == 13)
+            && (event.ctrlKey || event.metaKey)) {
+            submitEdit()        
+        }
+    })
+
+    /**
+     * Edit cell.
+     * @param {string} content 
+     */
+    g_handler.startEdit = (content)=> {
+        lastSelected.insertAdjacentElement('afterend', editDiv)
+        editArea.value = content
+        const lineNum = content.split("\n").length
+        editArea.rows = Math.max(lineNum, 3);
+        editDiv.style.display = 'block'
+   }
+
+
 
 
 })

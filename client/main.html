@@ -2,20 +2,20 @@
 <html lang="ja-JP">
     <head>
         <meta charset="UTF-8">
-        <title>Main html</title>
+        <title>MD Deck</title>
         <script src="webui.js"></script>
         <script src="client/client.js"></script>
         <link rel="stylesheet" href="client/prism.css">
         <link rel="stylesheet" href="client/bulma.css">
         <style>
             #edit-area {
-                width: 100%
+                width: 100%;
+                border: 8px solid #96505f;
             }
         </style>    
         <script src="client/prism.js" data-manual></script>
     </head>
-    <body style="background: #25e6b9">
-        <h1>Md Deck</h1>
+    <body id="body" style="background: #25e6b9">
         <button class="button" id="choose-dir">Choose Dir</button>
         <section class="section">
             <div id="post-div">
@@ -26,6 +26,13 @@
             </div>
         </section>
         <section>
+            <div id="edit-div" style="display:none;">
+                <textarea id="edit-area" class="textarea"></textarea>
+                <div class="buttons level-right">
+                    <button class="button is-dark" id="cancel-edit">Cancel</button>
+                    <button class="button is-dark" id="submit-edit">Submit</button>
+                </div>
+            </div>
             <div id="content-root" class="content"></div>
         </section>
     </body>

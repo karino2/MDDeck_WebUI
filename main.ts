@@ -206,13 +206,21 @@ const ensureDir = async (dir:string) => {
     }
 }
 
+const date2dir = (dt: Date) => {
+    return path.join(g_dir, dt.getFullYear().toString(), zeroPad(dt.getMonth()+1), zeroPad(dt.getDate()))
+}
+
+const date2fullPath = (dt: Date) => {
+    const targetDir = date2dir(dt)
+    const fname = dt.getTime().toString() + ".md"
+    return path.join(targetDir, fname)
+}
 
 const saveContent = async (dt:Date, text:string)=>{
-    const targetDir = path.join(g_dir, dt.getFullYear().toString(), zeroPad(dt.getMonth()+1), zeroPad(dt.getDate()))
+    const targetDir = date2dir(dt)
     await ensureDir(targetDir)
 
-    const fname = dt.getTime().toString() + ".md"
-    const full = path.join(targetDir, fname)
+    const full = date2fullPath(dt)
     await Deno.writeTextFile(full, text)
     return full
 }
@@ -229,6 +237,27 @@ myWindow.bind("post", async(e) => {
     return ""
 
 })
+
+myWindow.bind("box-click", async(e) => {
+    const full = e.arg.string(0)
+    const content = await Deno.readTextFile(full)
+
+    sendMessage("startEdit", content)
+
+
+    return ""
+})
+
+myWindow.bind("submit", async(e) => {
+    const full = e.arg.string(0)
+    const content = e.arg.string(1)
+
+    await Deno.writeTextFile(full, content)   
+    sendMessage("afterSubmit", JSON.stringify({fullPath:full, innerHTML: render(content)}))
+
+    return ""
+})
+
 
 myWindow.show("client/main.html")
 
