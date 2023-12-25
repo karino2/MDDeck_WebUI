@@ -9,12 +9,13 @@ import macos from "npm:macos-open-file-dialog@1.0.1"
 import * as path from "https://deno.land/std@0.210.0/path/mod.ts";
 import { escapeHtml } from "https://deno.land/x/escape_html@1.0.0/mod.ts"
 
-const render = (md: string) => {
-    return micromark(md, 'utf8', {
+const render = (md: string, dt: Date) => {
+    const html = micromark(md, 'utf8', {
         allowDangerousHtml: true,
         extensions: [gfm()],
         htmlExtensions: [gfmHtml()]
       })
+    return html + `<div class="content is-small">${dt}</div>`
 }
 
 
@@ -65,8 +66,12 @@ const readFilePathsAt = async(dirPath:string, yearstr:string, monthstr:string, d
     }
     ret.sort(  (a, b) => a < b ? 1 : -1 )
     return ret.map(fname => { return {fullPath: path.join(targetPath, fname), fname: fname} })
-
 }
+
+const fullPath2Date = (fullPath:string) => {
+    return new Date(parseInt(path.basename(fullPath, ".md")))
+}
+
 
 interface FilePath {
     fullPath: string
@@ -107,7 +112,7 @@ const loadDir = async (dirPath:string) => {
         .map( async pathpair => {
             const date = new Date(parseInt(pathpair.fname.substring(0, pathpair.fname.length - 4)))
             const content = await Deno.readTextFile(pathpair.fullPath)
-            return {fullPath: pathpair.fullPath, date: date, md: render(content)}
+            return {fullPath: pathpair.fullPath, date: date, md: render(content, date)}
         })
     )
 
@@ -232,7 +237,7 @@ myWindow.bind("post", async(e) => {
     const now = new Date()
     const full = await saveContent(now, text)
 
-    sendMessage("onLoadOneMd", JSON.stringify({fullPath:full, innerHTML: render(text)}))
+    sendMessage("onLoadOneMd", JSON.stringify({fullPath:full, innerHTML: render(text, now)}))
 
     return ""
 
@@ -253,7 +258,7 @@ myWindow.bind("submit", async(e) => {
     const content = e.arg.string(1)
 
     await Deno.writeTextFile(full, content)   
-    sendMessage("afterSubmit", JSON.stringify({fullPath:full, innerHTML: render(content)}))
+    sendMessage("afterSubmit", JSON.stringify({fullPath:full, innerHTML: render(content, fullPath2Date(full))}))
 
     return ""
 })
